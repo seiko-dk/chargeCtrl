@@ -4,17 +4,22 @@ from time import sleep
 def send (data):
     print (data)
     
+def getIO():
+    res = modbusClient.ReadHoldingRegisters(24004, 2)
+    print(res)
+    return res
+
+
     
     
 send("hej")
 uart = '/dev/ttyUSB0'
 
 modbusClient = ModbusClient.ModbusClient(uart)
-modbusClient._unitIdentifier = 16
-modbusClient._parity =  2
+modbusClient.UnitIdentifier = 16                    #Set slave ID
+modbusClient.Parity = ModbusClient.Parity.none
 modbusClient.Connect()
-modbusClient.ser.setDTR(False)
+modbusClient.ser.setDTR(False)                      #Enable autogating (half-duplex)
 
-res = modbusClient.ReadHoldingRegisters(24004, 2)
-print(res)
+getIO()
 modbusClient.close()
