@@ -1,12 +1,14 @@
 from EasyModbus import ModbusClient
 from time import sleep
+import logging
+from logging.config import fileConfig
 
 def send (data):
     print (data)
     
 def getIO():
     res = modbusClient.ReadHoldingRegisters(24004, 2)
-    print(res)
+    logger.debug('IO: %s', res)
     return res
 
 
@@ -21,5 +23,15 @@ modbusClient.Parity = ModbusClient.Parity.none
 modbusClient.Connect()
 modbusClient.ser.setDTR(False)                      #Enable autogating (half-duplex)
 
-getIO()
+
+fileConfig('logging_config.ini')
+logger = logging.getLogger()
+
+i = 1
+while (i > 0):
+    getIO()
+    i=i-1
+    sleep(1)
+    
+
 modbusClient.close()
