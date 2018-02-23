@@ -3,45 +3,192 @@ from time import sleep
 import logging
 from logging.config import fileConfig
 
+
 def send (data):
     print (data)
 
-def getIO():
-    res = modbusClient.ReadHoldingRegisters(24004, 2)
-    logger.debug('IO: %s', res)
-    return res
 
 
-#send("hej")
+# send("hej")
 uart = '/dev/ttyUSB0'
-
-class ChargerIf(object):
-	def __init__(self, *params):
-		self._charging = 0
-		self._connected = 0
-		self._btnEnabled = 0
-
-	def update(self, inputs, outputs):
-		self._btnEnabled = 1
-
-modbusClient = ModbusClient.ModbusClient(uart)
-modbusClient.UnitIdentifier = 16                    #Set slave ID
-modbusClient.Parity = ModbusClient.Parity.none
-modbusClient.Connect()
-modbusClient.ser.setDTR(False)                      #Enable autogating (half-duplex)
-
-charger = ChargerIf()
-charger.update(0,1)
-
-
 fileConfig('logging_config.ini')
 logger = logging.getLogger()
 
-i = 1 #24 * 60	#20 hours
-while (i > 0):
-    getIO()
-    i=i-1
-#    sleep(60)
 
+class ChargerIf(object):
+
+    def __init__(self, *params):
+        self._btnEnabled = False
+        self._xr = False        #external Release
+        self._ml = False
+        self._ccr = False
+        self._in = False
+        
+        self._out = False
+        self._err = False
+        self._charging = False
+        self._connected = False
+        
+        self._oldIO = [-1, -1]      #invalid value to ensure status is written after initialisation
+        self._chargeEnabled = False;
+        
+        self._modbusClient = ModbusClient.ModbusClient(uart)
+        self._modbusClient.UnitIdentifier = 16  # Set slave ID
+        self._modbusClient.Parity = ModbusClient.Parity.none
+        # self._modbusClient.Connect()
+        self._modbusClient.ser.setDTR(False)  # Enable autogating (half-duplex)
+        self.chargeEnabled = True
+        self.chargeModeCfg()
+    
+    @property
+    def chargeEnabled(self):
+        return self._chargeEnabled
+
+    @chargeEnabled.setter    
+    def chargeEnabled(self, enabled):
+        if (enabled):
+            self._chargeEnabled = True
+            logger.info('Charge is enabled')
+        else:
+            self._chargeEnabled = False
+            logger.info('Charge is disabled')
+
+#        self._modbusClient.WriteSingleCoil(20000, self._chargeEnabled)
+        logger.debug('ChargeEnable[20.000]: %s', self._chargeEnabled)
+
+
+    def chargeModeCfg(self):
+        res = 3
+#        res = self._modbusClient.ReadHoldingRegisters(4000, 1)
+        logger.debug('ChargeCtrl[4.000]: %s', res)
+        if (3!=res):
+            self._modbusClient.WriteSingleRegister(4000, 3)
+            res = self._modbusClient.ReadHoldingRegisters(4000, 1)
+            logger.debug('ChargeCtrl[4.000]: %s', res)
+        logger.info('Charge remote control is enabled')
+        
+    def updateIO(self):
+        res = self._modbusClient.ReadHoldingRegisters(24004, 2)
+        logger.debug('IO[24.004,24.005]: %s', res)
+        _parseIO(res[0], res[1])
+        self._oldIO = res
+        
+        
+    def _parseIO(self, IO):
+        inputs = IO[0]
+        outputs = IO[1]
+        
+        dbg_string = ''
+        
+        if (inputs & 0x01):
+            self._btnEnabled = True
+            dbg_string = dbg_string + 'BTN '
+        else:
+            self._btnEnabled = False
+
+        if (inputs & 0x02):
+            dbg_string = dbg_string + 'XR '
+            self._xr = True
+        else:
+            self._xr = False
+
+        if (inputs & 0x04):
+            dbg_string = dbg_string + 'ML '
+            self._ml = True
+        else:
+            self._ml = False
+
+        if (inputs & 0x08):
+            dbg_string = dbg_string + 'CCR '
+            self._ccr = True
+        else:
+            self._ccr = False
+
+        if (inputs & 0x10):
+            dbg_string = dbg_string + 'IN '
+            self._in = True
+        else:
+            self._in = False
+        
+            
+        if (outputs & 0x01):
+            dbg_string = dbg_string + 'OUT '
+            self._out = True
+        else:
+            self._out = False
+
+        if (outputs & 0x02):
+            dbg_string = dbg_string + 'ERR '
+            self._err = True
+        else:
+            self._err = False
+
+        if (outputs & 0x04):
+            dbg_string = dbg_string + 'CHARGE '
+            self._charging = True
+        else:
+            self._charging = False
+
+        if (outputs & 0x08):
+            dbg_string = dbg_string + 'CONNECTED '
+            self._connected = True
+        else:
+            self._connected = False
+            
+        if (self._oldIO!=IO):
+            logger.info('New IO: ' + dbg_string)
+        
+
+    @property
+    def buttonEnabled(self):
+        return self._btnEnabled
+
+    @property
+    def charging(self):
+        return self._charging
+
+    @property
+    def connected(self):
+        return self._connected
+
+    @property
+    def error(self):
+        return self._err
+
+    @property
+    def outputSet(self):
+        return self._out
+
+charger = ChargerIf()
+#charger.updateIO()
+charger._parseIO([0, 0])
+sleep(1)
+charger._parseIO([0, 0])
+sleep(1)
+charger._parseIO([0, 12])
+sleep(1)
+charger._parseIO([0, 12])
+sleep(1)
+charger._parseIO([0, 8])
+sleep(1)
+charger._parseIO([0, 0])
+sleep(1)
+charger._parseIO([1, 0])
+sleep(1)
+charger._parseIO([1, 0])
+sleep(1)
+charger._parseIO([1, 12])
+sleep(1)
+charger._parseIO([1, 12])
+sleep(1)
+charger._parseIO([1, 8])
+sleep(1)
+charger._parseIO([1, 0])
+
+i = 1  # 24 * 60    #20 hours
+while (i > 0):
+    charger.updateIO();
+    i = i - 1
+#    sleep(60)
 
 modbusClient.close()
