@@ -35,11 +35,14 @@ class ChargerIf(object):
         self._modbusClient = ModbusClient.ModbusClient(uart)
         self._modbusClient.UnitIdentifier = 16  # Set slave ID
         self._modbusClient.Parity = ModbusClient.Parity.none
-        # self._modbusClient.Connect()
+        self._modbusClient.Connect()
         self._modbusClient.ser.setDTR(False)  # Enable autogating (half-duplex)
         self.chargeEnabled = True
         self.chargeModeCfg()
-    
+
+    def __del__(self):
+        self._modbusClient.close()
+
     @property
     def chargeEnabled(self):
         return self._chargeEnabled
@@ -53,27 +56,20 @@ class ChargerIf(object):
             self._chargeEnabled = False
             logger.info('Charge is disabled')
 
-#        self._modbusClient.WriteSingleCoil(20000, self._chargeEnabled)
+        self._modbusClient.WriteSingleCoil(20000, self._chargeEnabled)
         logger.debug('ChargeEnable[20.000]: %s', self._chargeEnabled)
 
 
     def chargeModeCfg(self):
         res = 3
-#        res = self._modbusClient.ReadHoldingRegisters(4000, 1)
+        res = self._modbusClient.ReadHoldingRegisters(4000, 1)
         logger.debug('ChargeCtrl[4.000]: %s', res)
         if (3!=res):
             self._modbusClient.WriteSingleRegister(4000, 3)
             res = self._modbusClient.ReadHoldingRegisters(4000, 1)
             logger.debug('ChargeCtrl[4.000]: %s', res)
         logger.info('Charge remote control is enabled')
-        
-    def updateIO(self):
-        res = self._modbusClient.ReadHoldingRegisters(24004, 2)
-        logger.debug('IO[24.004,24.005]: %s', res)
-        _parseIO(res[0], res[1])
-        self._oldIO = res
-        
-        
+
     def _parseIO(self, IO):
         inputs = IO[0]
         outputs = IO[1]
@@ -136,8 +132,13 @@ class ChargerIf(object):
             self._connected = False
             
         if (self._oldIO!=IO):
-            logger.info('New IO: ' + dbg_string)
+            logger.info('IO update: ' + dbg_string)
         
+    def updateIO(self):
+        res = self._modbusClient.ReadHoldingRegisters(24004, 2)
+        logger.debug('IO[24.004,24.005]: %s', res)
+        self._parseIO(res)
+        self._oldIO = res
 
     @property
     def buttonEnabled(self):
@@ -160,35 +161,10 @@ class ChargerIf(object):
         return self._out
 
 charger = ChargerIf()
-#charger.updateIO()
-charger._parseIO([0, 0])
-sleep(1)
-charger._parseIO([0, 0])
-sleep(1)
-charger._parseIO([0, 12])
-sleep(1)
-charger._parseIO([0, 12])
-sleep(1)
-charger._parseIO([0, 8])
-sleep(1)
-charger._parseIO([0, 0])
-sleep(1)
-charger._parseIO([1, 0])
-sleep(1)
-charger._parseIO([1, 0])
-sleep(1)
-charger._parseIO([1, 12])
-sleep(1)
-charger._parseIO([1, 12])
-sleep(1)
-charger._parseIO([1, 8])
-sleep(1)
-charger._parseIO([1, 0])
 
-i = 1  # 24 * 60    #20 hours
+i = 19 * 60    #20 hours
 while (i > 0):
     charger.updateIO();
     i = i - 1
-#    sleep(60)
+    sleep(60)
 
-modbusClient.close()
