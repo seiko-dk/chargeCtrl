@@ -47,8 +47,10 @@ class ChargerIf(object):
     def chargeEnabled(self):
         return self._chargeEnabled
 
-    @chargeEnabled.setter    
+    @chargeEnabled.setter
     def chargeEnabled(self, enabled):
+#        res = self._modbusClient.ReadCoils(20000,1)
+#        logger.debug('ChargeEnable[20.000] read: %s', res)
         if (enabled):
             self._chargeEnabled = True
             logger.info('Charge is enabled')
@@ -57,17 +59,16 @@ class ChargerIf(object):
             logger.info('Charge is disabled')
 
         self._modbusClient.WriteSingleCoil(20000, self._chargeEnabled)
-        logger.debug('ChargeEnable[20.000]: %s', self._chargeEnabled)
+        logger.debug('ChargeEnable[20.000] set: %s', self._chargeEnabled)
 
 
     def chargeModeCfg(self):
         res = 3
         res = self._modbusClient.ReadHoldingRegisters(4000, 1)
-        logger.debug('ChargeCtrl[4.000]: %s', res)
-        if (3!=res):
+        if ([3]!=res):
             self._modbusClient.WriteSingleRegister(4000, 3)
             res = self._modbusClient.ReadHoldingRegisters(4000, 1)
-            logger.debug('ChargeCtrl[4.000]: %s', res)
+            logger.debug('ChargeCtrl[4.000] read: %s', res)
         logger.info('Charge remote control is enabled')
 
     def _parseIO(self, IO):
