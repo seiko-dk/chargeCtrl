@@ -2,14 +2,9 @@ from EasyModbus import ModbusClient
 from time import sleep
 import logging
 from logging.config import fileConfig
+import time
+import math
 
-
-def send (data):
-    print (data)
-
-
-
-# send("hej")
 uart = '/dev/ttyUSB0'
 fileConfig('logging_config.ini')
 logger = logging.getLogger()
@@ -18,6 +13,7 @@ logger = logging.getLogger()
 class ChargerIf(object):
 
     def __init__(self, *params):
+        logger.info('Initializing charger')
         self._btnEnabled = False
         self._xr = False        #external Release
         self._ml = False
@@ -134,6 +130,20 @@ class ChargerIf(object):
             
         if (self._oldIO!=IO):
             logger.info('IO update: ' + dbg_string)
+
+            o = self._oldIO[1] & 0x04
+            n = IO[1] & 0x04
+            if (n and not o):
+                #Charge is started
+                self._chargeStartTimeStamp = time.time()
+            elif (o and not n):
+                #charge is stopped. Calculate the charge time
+                diff = time.time() - self._chargeStartTimeStamp
+                min = int(round(diff/60))
+                hour = math.floor(min / 60)
+                rem = math.floor(min % 60)
+                logger.info('Charge time % 2u:%02u', hour, rem)
+                  
         
     def updateIO(self):
         res = self._modbusClient.ReadHoldingRegisters(24004, 2)
