@@ -1,3 +1,4 @@
+from time import sleep
 import logging
 from logging.config import fileConfig
 from chargerInterface import ChargerIf

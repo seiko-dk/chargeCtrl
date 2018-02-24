@@ -32,6 +32,8 @@ class ChargerIf(object):
         self.chargeEnabled = True
         self.chargeModeCfg()
 
+        self._chargeStartTimeStamp = time.time()
+
     def __del__(self):
         self._modbusClient.close()
 
@@ -125,7 +127,7 @@ class ChargerIf(object):
             self._connected = False
             
         if (self._oldIO!=IO):
-            logger.info('IO update: ' + dbg_string)
+            self._logger.info('IO update: ' + dbg_string)
 
             o = self._oldIO[1] & 0x04
             n = IO[1] & 0x04
