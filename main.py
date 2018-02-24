@@ -36,6 +36,8 @@ class ChargerIf(object):
         self.chargeEnabled = True
         self.chargeModeCfg()
 
+        self._chargeStartTimeStamp = time.time()
+
     def __del__(self):
         self._modbusClient.close()
 
@@ -143,8 +145,7 @@ class ChargerIf(object):
                 hour = math.floor(min / 60)
                 rem = math.floor(min % 60)
                 logger.info('Charge time % 2u:%02u', hour, rem)
-                  
-        
+
     def updateIO(self):
         res = self._modbusClient.ReadHoldingRegisters(24004, 2)
         logger.debug('IO[24.004,24.005]: %s', res)
