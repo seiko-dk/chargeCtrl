@@ -24,13 +24,19 @@ class ChargerIf(object):
         self._oldIO = [-1, -1]      #invalid value to ensure status is written after initialisation
         self._chargeEnabled = False;
         
-        self._modbusClient = ModbusClient.ModbusClient(uart)
-        self._modbusClient.UnitIdentifier = 16  # Set slave ID
-        self._modbusClient.Parity = ModbusClient.Parity.none
-        self._modbusClient.Connect()
-        self._modbusClient.ser.setDTR(False)  # Enable autogating (half-duplex)
-        self.chargeEnabled = True
-        self.chargeModeCfg()
+        self._simulate = False;
+        try:
+            self._modbusClient = ModbusClient.ModbusClient(uart)
+            self._modbusClient.UnitIdentifier = 16  # Set slave ID
+            self._modbusClient.Parity = ModbusClient.Parity.none
+            self._modbusClient.Connect()
+            self._modbusClient.ser.setDTR(False)  # Enable autogating (half-duplex)
+            self.chargeEnabled = True
+            self.chargeModeCfg()
+        except:
+            self._simulate = True;
+            
+
 
         self._chargeStartTimeStamp = time.time()
 
@@ -45,6 +51,10 @@ class ChargerIf(object):
     def chargeEnabled(self, enabled):
 #        res = self._modbusClient.ReadCoils(20000,1)
 #        logger.debug('ChargeEnable[20.000] read: %s', res)
+        update = False
+        if (self._chargeEnabled != enabled):
+            update = True
+        
         if (enabled):
             self._chargeEnabled = True
             self._logger.info('Charge is enabled')
@@ -52,8 +62,10 @@ class ChargerIf(object):
             self._chargeEnabled = False
             self._logger.info('Charge is disabled')
 
-        self._modbusClient.WriteSingleCoil(20000, self._chargeEnabled)
-        self._logger.debug('ChargeEnable[20.000] set: %s', self._chargeEnabled)
+        if (update):
+            if (not self._simulate):
+                self._modbusClient.WriteSingleCoil(20000, self._chargeEnabled)
+            self._logger.debug('ChargeEnable[20.000] set: %s', self._chargeEnabled)
 
 
     def chargeModeCfg(self):
@@ -135,16 +147,20 @@ class ChargerIf(object):
                 #Charge is started
                 self._chargeStartTimeStamp = time.time()
             elif (o and not n):
-                #charge is stopped. Calculate the charge time
+                #charge is stopped. Calculate the charge time and energy transferred
                 diff = time.time() - self._chargeStartTimeStamp
                 min = int(round(diff/60))
                 hour = math.floor(min / 60)
                 rem = math.floor(min % 60)
-                self._logger.info('Charge time % 2u:%02u', hour, rem)
+                kWh = (min * 3.7) / 60
+                self._logger.info('Charge time % 2u:%02u %f kWh', hour, rem, kWh)
                   
         
     def updateIO(self):
-        res = self._modbusClient.ReadHoldingRegisters(24004, 2)
+        if (not self._simulate):
+            res = self._modbusClient.ReadHoldingRegisters(24004, 2)
+        else:
+            res = [0, 12]
         self._logger.debug('IO[24.004,24.005]: %s', res)
         self._parseIO(res)
         self._oldIO = res
