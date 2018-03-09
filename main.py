@@ -30,7 +30,10 @@ Every minute the file is read. Power can be limited to 0-8 hours. Default behavi
 btn on
 always power on
 
-At disconnection, write a csv logline containing start, stop, time, kwh
+At chargestop, write a csv logline containing start, stop, time, kwh
+
+Add comments.
+Use JSON format for web interface
 """
 POWER_OFF_START = 17
 POWER_OFF_END   = 20
