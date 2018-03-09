@@ -10,6 +10,7 @@ class ChargerIf(object):
     def __init__(self, uart, log):
         self._logger = log
         self._logger.info('Initializing charger')
+        self._summary = logging.getLogger('summary')
         self._btnEnabled = False
         self._xr = False        #external Release
         self._ml = False
@@ -155,6 +156,7 @@ class ChargerIf(object):
                 rem = math.floor(min % 60)
                 kWh = (min * 3.7) / 60
                 self._logger.info('Charge time % 2u:%02u %f kWh', hour, rem, kWh)
+                self._summary.info('% 2u:%02u, %f', hour, rem, kWh)
                   
         
     def updateIO(self):

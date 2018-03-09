@@ -82,6 +82,7 @@ class ChargeControl(object):
         #Poll button status and command file every minute
         if (self._lastRunMin == now.minute):
             diffSec = 60 - now.second
+#            diffSec = 1
             sleep(diffSec)
         self._charger.updateIO()
         now = datetime.now()
@@ -156,7 +157,7 @@ signal.signal(signal.SIGINT, gracefull_shutdown)
 signal.signal(signal.SIGTERM, gracefull_shutdown)
 
 #try:
-i = 20 * 60    #20 hours
+i = 168 * 60    #20 hours
 while (i > 0):
     schedule.run()
     i = i - 1
