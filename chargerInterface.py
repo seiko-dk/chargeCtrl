@@ -34,14 +34,15 @@ class ChargerIf(object):
             self.chargeEnabled = True
             self.chargeModeCfg()
         except:
+            self._logger.warning('Unable to connect to charger. Simulating communication')
             self._simulate = True;
             
 
 
         self._chargeStartTimeStamp = time.time()
 
-    def __del__(self):
-        self._modbusClient.close()
+#    def __del__(self):
+#        self._modbusClient.close()
 
     @property
     def chargeEnabled(self):
