@@ -8,17 +8,9 @@ from datetime import datetime
 import signal
 import sys
 
-def signal_handler(signal, frame):
-        self._logger.info('Something happened. Shutting down')
-        print('Something happened. Shutting down')
-        self._charger.chargeEnabled = True
-        sys.exit(0)
-
-uart = '/dev/ttyUSB0'
+UART = '/dev/ttyUSB0'
 fileConfig('logging_config.ini')
 logger = logging.getLogger()
-
-#charger = ChargerIf(uart, logger)
 
 """
 btn off
@@ -53,7 +45,7 @@ class ChargeControl(object):
         self._logger = log
         self._currentState = chargeStates.init
         self._nextState = chargeStates.init
-        self._charger = ChargerIf(uart, log)
+        self._charger = ChargerIf(UART, log)
         
         timeT = datetime.now()
         self._lastRunMin = timeT.minute - 1
@@ -149,23 +141,24 @@ class ChargeControl(object):
 
         if(self._nextState != self._currentState):
             self._currentState = self._nextState
-        
-           
-
-signal.signal(signal.SIGINT, signal_handler)
-signal.signal(signal.SIGTERM, signal_handler)
 
 schedule = ChargeControl(logger)
-#schedule.run()
-#quit()
-try:
 
-    i = 20 * 60    #20 hours
-    while (i > 0):
-        #    charger.updateIO();
-        schedule.run()
-        i = i - 1
-    signal_handler(0, 0)
-except:
+def gracefull_shutdown(signal, frame):
+        logger.info('Something happened. Shutting down')
+        schedule._charger.chargeEnabled = True
+        sys.exit(0)
+
+signal.signal(signal.SIGINT, gracefull_shutdown)
+signal.signal(signal.SIGTERM, gracefull_shutdown)
+
+#try:
+i = 20 * 60    #20 hours
+while (i > 0):
+    schedule.run()
+    i = i - 1
+
+gracefull_shutdown(0, 0)
+#except:
     #ensure that charging is enabled if something goes wrong
-    signal_handler(0, 0)
+#    gracefull_shutdown(0, 0)
