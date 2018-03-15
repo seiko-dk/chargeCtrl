@@ -148,8 +148,15 @@ class ChargeControl(object):
 
 schedule = ChargeControl(logger)
 
-def gracefull_shutdown(signal, frame):
-        logger.info('Something happened. Shutting down')
+def gracefull_shutdown(sig, frame):
+        if(0 == sig):
+                logger.info('This is the end my friend, the end')
+        elif (signal.SIGINT == sig):
+                logger.info('SIGINT received')
+        elif (signal.SIGTERM == sig):
+                logger.info('SIGTERM received')
+        else:
+                logger.info('Something happened. Shutting down')
         schedule._charger.chargeEnabled = True
         sys.exit(0)
 
@@ -157,7 +164,7 @@ signal.signal(signal.SIGINT, gracefull_shutdown)
 signal.signal(signal.SIGTERM, gracefull_shutdown)
 
 #try:
-i = 168 * 60    #20 hours
+i = 1680 * 60    #20 hours
 while (i > 0):
     schedule.run()
     i = i - 1
