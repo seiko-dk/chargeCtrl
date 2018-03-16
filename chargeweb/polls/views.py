@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404, render
 from time import sleep
+import subprocess
 
 # Create your views here.
 from django.http import HttpResponse
@@ -7,12 +8,12 @@ from .models import Question
 from django.template import loader
 
 POWER_LIMIT_FILENAME = '../pwr.txt'
+LOG_FILENAME = '../progress.log'
 
 def index(request):
-    return HttpResponse("index")
-    latest_question_list = Question.objects.order_by('-pub_date')[:5]
-    context = {'latest_question_list': latest_question_list}
-    return render(request, 'polls/index.html', context)
+    #logtext = subprocess.run(['tail', '../progress.log', '-n 5'], stdout=subprocess.PIPE).stdout.decode('utf-8')
+    logtext = subprocess.run(['grep', '-v', 'DEBUG', LOG_FILENAME], stdout=subprocess.PIPE).stdout.decode('utf-8')
+    return render(request, 'polls/index.html', {'logtext': logtext})
 
 def detail(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
