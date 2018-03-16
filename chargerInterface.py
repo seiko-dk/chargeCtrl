@@ -59,10 +59,12 @@ class ChargerIf(object):
         
         if (enabled):
             self._chargeEnabled = True
-            self._logger.info('Charge is enabled')
+            if(update):
+                self._logger.info('Charge is enabled')
         else:
             self._chargeEnabled = False
-            self._logger.info('Charge is disabled')
+            if(update):
+                self._logger.info('Charge is disabled')
 
         if (update):
             if (not self._simulate):

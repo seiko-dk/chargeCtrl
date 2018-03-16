@@ -117,6 +117,8 @@ class ChargeControl(object):
                 f.write('0')
             f.closed
             self._powerCountDown = pwrlimit * 60
+            logger.info('Limited charge to Stopping charge')
+            
             
         if (0 < self._powerCountDown):
             if (self._charger.charging):
@@ -124,6 +126,7 @@ class ChargeControl(object):
 
         if (0 == self._powerCountDown):
             self._nextState = chargeStates.chargeComplete
+            logger.info('Charge time limit reached. Stopping charge')
 
         #Act on the new states
         if(self._nextState != self._currentState):
