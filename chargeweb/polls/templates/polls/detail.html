@@ -1,0 +1,16 @@
+<h1>{{ "Welcome to chargeControl" }}</h1>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<h2>{{ "Current state is" }}</h2>
+
+Choose maximum chargetime:
+<form action="{% url 'polls:vote' 1 %}" method="post">
+{% csrf_token %}
+  <button name="subject" type="submit" value="1">1 hour</button>
+</form>
+
+<form action="{% url 'polls:vote' 2 %}" method="post">
+{% csrf_token %}
+  <button name="subject" type="submit" value="2">2 hours</button>
+</form>
