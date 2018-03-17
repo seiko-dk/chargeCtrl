@@ -11,8 +11,15 @@ POWER_LIMIT_FILENAME = '../pwr.txt'
 LOG_FILENAME = '../progress.log'
 
 def index(request):
-    #logtext = subprocess.run(['tail', '../progress.log', '-n 5'], stdout=subprocess.PIPE).stdout.decode('utf-8')
     logtext = subprocess.run(['grep', '-v', 'DEBUG', LOG_FILENAME], stdout=subprocess.PIPE).stdout.decode('utf-8')
+
+    #truncate the log if its big
+    TRUNCKLIMIT = 2000
+    if (TRUNCKLIMIT<len(logtext)):
+        logtext = logtext[-TRUNCKLIMIT:]
+        offset = logtext.find('\n')
+        logtext = logtext[offset:]
+
     return render(request, 'polls/index.html', {'logtext': logtext})
 
 def detail(request, question_id):
