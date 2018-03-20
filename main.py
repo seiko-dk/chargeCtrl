@@ -30,6 +30,7 @@ Use JSON format for web interface
 POWER_OFF_START = 17
 POWER_OFF_END   = 20
 POWER_LIMIT_FILENAME = 'pwr.txt'
+POWER_LIMIT_DEFAULT = 1000000000
 
 class chargeStates(Enum):
     init = 0
@@ -54,10 +55,11 @@ class ChargeControl(object):
         self._lastRunMin = timeT.minute - 1
         self._lastRunHour = timeT.hour -1
         
-        self._powerCountDown = 1000000000
+        self._powerCountDown = POWER_LIMIT_DEFAULT
         
     def _statePowerOnForced(self):
          self._charger.chargeEnabled = True
+         self._powerCountDown = POWER_LIMIT_DEFAULT
             
     def _statePowerOn(self):
          self._charger.chargeEnabled = True
@@ -91,7 +93,6 @@ class ChargeControl(object):
         #Detect button state
         if (self._charger.buttonEnabled):
             self._nextState = chargeStates.powerOnForced
-            print("Button is pressed")
         else:
             #The button is not pressed, so lets have a look at the time
             if (POWER_OFF_START > now.hour or POWER_OFF_END <= now.hour):
@@ -107,30 +108,30 @@ class ChargeControl(object):
                 else:
                     self._nextState = chargeStates.powerOffPeriodWaitForConnection
         
-        #Perform file IO
-        with open(POWER_LIMIT_FILENAME, 'r') as f:
-            pwrlimit = int(f.read())
-        f.closed
-        
-        if (0<pwrlimit):
-            with open(POWER_LIMIT_FILENAME, 'w') as f:
-                f.write('0')
+            #Perform file IO
+            with open(POWER_LIMIT_FILENAME, 'r') as f:
+                pwrlimit = int(f.read())
             f.closed
-            self._powerCountDown = pwrlimit * 60
-            logger.info('Limited charge to Stopping charge')
             
-            
-        if (0 < self._powerCountDown):
-            if (self._charger.charging):
-                self._powerCountDown = self._powerCountDown -1
-
-        if (0 == self._powerCountDown):
-            self._nextState = chargeStates.chargeComplete
-            logger.info('Charge time limit reached. Stopping charge')
+            if (0<pwrlimit):
+                with open(POWER_LIMIT_FILENAME, 'w') as f:
+                    f.write('0')
+                f.closed
+                self._powerCountDown = pwrlimit
+                logger.info('Limited charge to %u minutes', self._powerCountDown)
+                
+                
+            if (0 < self._powerCountDown and POWER_LIMIT_DEFAULT != self._powerCountDown):
+                if (self._charger.charging):
+                    self._powerCountDown = self._powerCountDown -1
+    
+            if (0 == self._powerCountDown):
+                self._nextState = chargeStates.chargeComplete
+                self._powerCountDown = POWER_LIMIT_DEFAULT
+                logger.info('Charge time limit reached. Stopping charge')
 
         #Act on the new states
         if(self._nextState != self._currentState):
-            self._logger.info('%s -> %s', self._currentState, self._nextState)
             if (chargeStates.powerOnForced == self._nextState):
                 self._statePowerOnForced()
             elif (chargeStates.chargeComplete == self._currentState):
@@ -138,7 +139,7 @@ class ChargeControl(object):
                     self._stateChargeComplete()
                     self._nextState = self._currentState #prevent statechange
                 else:
-                    self._powerCountDown = 1000000000
+                    self._powerCountDown = POWER_LIMIT_DEFAULT
             elif (chargeStates.powerOnPeriodConnected == self._nextState or chargeStates.powerOnPeriodWaitForConnection == self._nextState):
                 self._statePowerOn()
             elif (chargeStates.powerOffPeriodWaitForConnection == self._nextState):
@@ -147,6 +148,7 @@ class ChargeControl(object):
                 self._powerOffPeriodConnected()
 
         if(self._nextState != self._currentState):
+            self._logger.info('%s -> %s', self._currentState, self._nextState)
             self._currentState = self._nextState
 
 schedule = ChargeControl(logger)
@@ -167,10 +169,11 @@ signal.signal(signal.SIGINT, gracefull_shutdown)
 signal.signal(signal.SIGTERM, gracefull_shutdown)
 
 #try:
-i = 1680 * 60    #20 hours
+#run forever, but while debugging it can be nice to limit loop
+i = 100    #20 hours
 while (i > 0):
     schedule.run()
-    i = i - 1
+#    i = i - 1
 
 gracefull_shutdown(0, 0)
 #except:
