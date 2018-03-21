@@ -7,6 +7,7 @@ from enum import Enum
 from datetime import datetime
 import signal
 import sys
+import json
 
 UART = '/dev/ttyUSB0'
 fileConfig('logging_config.ini')
@@ -27,10 +28,12 @@ At chargestop, write a csv logline containing start, stop, time, kwh
 Add comments.
 Use JSON format for web interface
 """
-POWER_OFF_START = 17
+POWER_OFF_START = 16
 POWER_OFF_END   = 20
 POWER_LIMIT_FILENAME = 'pwr.txt'
 POWER_LIMIT_DEFAULT = 1000000000
+
+STATUS_FILENAME = 'status.txt'
 
 class chargeStates(Enum):
     init = 0
@@ -151,6 +154,24 @@ class ChargeControl(object):
             self._logger.info('%s -> %s', self._currentState, self._nextState)
             self._currentState = self._nextState
 
+        #now = datetime.now()
+        stateinfo = {'time': now.ctime(),
+                     'currentState': self._currentState.name,
+                     'button': self._charger.buttonEnabled, 
+                     'connected': self._charger.connected, 
+                     'charging': self._charger.charging, 
+                     'chargeEnabled': self._charger.chargeEnabled, 
+                     }
+
+#        print(stateinfo)
+
+        try:
+            with open(STATUS_FILENAME, 'w') as f:
+                json.dump(stateinfo, f)
+            f.closed
+        except Exception:
+            pass
+
 schedule = ChargeControl(logger)
 
 def gracefull_shutdown(sig, frame):
@@ -170,7 +191,7 @@ signal.signal(signal.SIGTERM, gracefull_shutdown)
 
 #try:
 #run forever, but while debugging it can be nice to limit loop
-i = 100    #20 hours
+i = 10    #20 hours
 while (i > 0):
     schedule.run()
 #    i = i - 1
