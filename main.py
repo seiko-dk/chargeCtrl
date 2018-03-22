@@ -160,7 +160,8 @@ class ChargeControl(object):
                      'button': self._charger.buttonEnabled, 
                      'connected': self._charger.connected, 
                      'charging': self._charger.charging, 
-                     'chargeEnabled': self._charger.chargeEnabled, 
+                     'chargeEnabled': self._charger.chargeEnabled,
+                     'limitRemaining': self._powerCountDown,
                      }
 
 #        print(stateinfo)

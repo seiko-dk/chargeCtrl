@@ -5,8 +5,20 @@
 <h2>{{ 'Current state is '}}</h2>
 <pre>{{ logtext|linebreaks }}</pre>
 
+Last update: {{ status.time }}<br />
+Button: {{ status.button}}<br />
+State: {{ status.currentState}}<br />
+Charging: {{ status.chargeEnabled}}<br />
+Cable: {{ status.connected}} {{ status.charging }}<br />
+
 <br />
 Choose maximum chargetime:
+
+<form action="{% url 'polls:vote' 0 %}" method="post">
+{% csrf_token %}
+  <button name="subject" type="submit" value="0">stop charge</button>
+</form>
+
 <form action="{% url 'polls:vote' 1 %}" method="post">
 {% csrf_token %}
   <button name="subject" type="submit" value="1">1 hour</button>
@@ -15,4 +27,16 @@ Choose maximum chargetime:
 <form action="{% url 'polls:vote' 2 %}" method="post">
 {% csrf_token %}
   <button name="subject" type="submit" value="2">2 hours</button>
+</form>
+<form action="{% url 'polls:vote' 3 %}" method="post">
+{% csrf_token %}
+  <button name="subject" type="submit" value="3">3 hours</button>
+</form>
+<form action="{% url 'polls:vote' 4 %}" method="post">
+{% csrf_token %}
+  <button name="subject" type="submit" value="4">4 hours</button>
+</form>
+<form action="{% url 'polls:vote' 5 %}" method="post">
+{% csrf_token %}
+  <button name="subject" type="submit" value="5">No limit</button>
 </form>

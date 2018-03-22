@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404, render
 from time import sleep
 import subprocess
+import json
 
 # Create your views here.
 from django.http import HttpResponse
@@ -9,6 +10,7 @@ from django.template import loader
 
 POWER_LIMIT_FILENAME = '../pwr.txt'
 LOG_FILENAME = '../progress.log'
+STATUS_FILENAME = '../status.txt'
 
 def index(request):
     logtext = subprocess.run(['grep', '-v', 'DEBUG', LOG_FILENAME], stdout=subprocess.PIPE).stdout.decode('utf-8')
@@ -19,8 +21,33 @@ def index(request):
         logtext = logtext[-TRUNCKLIMIT:]
         offset = logtext.find('\n')
         logtext = logtext[offset:]
+        
+    with open(STATUS_FILENAME) as json_file:  
+        data = json.load(json_file)
 
-    return render(request, 'polls/index.html', {'logtext': logtext})
+        if (data['charging']):
+            data['charging'] = "CHARCHING"
+        else:
+            data['charging'] = ""
+
+        if (data['connected']):
+            data['connected'] = "CONNECTED"
+        else:
+            data['connected'] = ""
+
+        if (data['chargeEnabled']):
+            data['chargeEnabled'] = "ALLOWED"
+        else:
+            data['chargeEnabled'] = "NO ALLOWED"
+
+        if (data['button']):
+            data['button'] = "ACTIVATED"
+        else:
+            data['button'] = "NOT ACTIVATED"
+
+#    print(data)
+
+    return render(request, 'polls/index.html', {'logtext': logtext, 'status': data})
 
 def detail(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
