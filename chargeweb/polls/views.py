@@ -26,7 +26,7 @@ def index(request):
         data = json.load(json_file)
 
         if (data['charging']):
-            data['charging'] = "CHARCHING"
+            data['charging'] = "CHARGING"
         else:
             data['charging'] = ""
 
@@ -44,6 +44,9 @@ def index(request):
             data['button'] = "ACTIVATED"
         else:
             data['button'] = "NOT ACTIVATED"
+
+        if (1000000<data['limitRemaining']):
+            data['limitRemaining'] = "-"
 
 #    print(data)
 

@@ -2,14 +2,16 @@
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-<h2>{{ 'Current state is '}}</h2>
 <pre>{{ logtext|linebreaks }}</pre>
 
+<h4>
 Last update: {{ status.time }}<br />
 Button: {{ status.button}}<br />
 State: {{ status.currentState}}<br />
+PowerLimitCountdown: {{ status.limitRemaining}} min<br />
 Charging: {{ status.chargeEnabled}}<br />
 Cable: {{ status.connected}} {{ status.charging }}<br />
+</h4>
 
 <br />
 Choose maximum chargetime:
