@@ -62,7 +62,10 @@ def results(request, question_id):
 
 def vote(request, charge_time):
     #Perform file IO
-    minutes = int(charge_time) * 60
+    minutes = int(charge_time)
+    if (1000000<charge_time):
+        minutes = 1000000000
+        
     try:
         with open(POWER_LIMIT_FILENAME, 'w') as f:
             f.write("%i" % minutes)
@@ -72,4 +75,8 @@ def vote(request, charge_time):
         with open(POWER_LIMIT_FILENAME, 'w') as f:
             f.write("%i" % minutes)
         f.closed
-    return HttpResponse("Charge is limited to  %s hour(s). (%.1f kWh)" % (charge_time, (minutes*3.7)/60))
+    if (1000000<charge_time):
+        return HttpResponse("Charge is unlimited")
+    else:
+        return HttpResponse("Charge is limited to  %s hour(s). (%.1f kWh)" % (charge_time/60, (minutes*3.7)/60))
+        

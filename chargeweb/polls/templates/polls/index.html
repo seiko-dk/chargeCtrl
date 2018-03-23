@@ -2,8 +2,6 @@
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-<pre>{{ logtext|linebreaks }}</pre>
-
 <h4>
 Last update: {{ status.time }}<br />
 Button: {{ status.button}}<br />
@@ -13,7 +11,6 @@ Charging: {{ status.chargeEnabled}}<br />
 Cable: {{ status.connected}} {{ status.charging }}<br />
 </h4>
 
-<br />
 Choose maximum chargetime:
 
 <form action="{% url 'polls:vote' 0 %}" method="post">
@@ -21,24 +18,39 @@ Choose maximum chargetime:
   <button name="subject" type="submit" value="0">stop charge</button>
 </form>
 
-<form action="{% url 'polls:vote' 1 %}" method="post">
+<form action="{% url 'polls:vote' 60 %}" method="post">
 {% csrf_token %}
   <button name="subject" type="submit" value="1">1 hour</button>
 </form>
 
-<form action="{% url 'polls:vote' 2 %}" method="post">
+<form action="{% url 'polls:vote' 120 %}" method="post">
 {% csrf_token %}
   <button name="subject" type="submit" value="2">2 hours</button>
 </form>
-<form action="{% url 'polls:vote' 3 %}" method="post">
+<form action="{% url 'polls:vote' 180 %}" method="post">
 {% csrf_token %}
   <button name="subject" type="submit" value="3">3 hours</button>
 </form>
-<form action="{% url 'polls:vote' 4 %}" method="post">
+<form action="{% url 'polls:vote' 240 %}" method="post">
 {% csrf_token %}
   <button name="subject" type="submit" value="4">4 hours</button>
 </form>
-<form action="{% url 'polls:vote' 5 %}" method="post">
+<form action="{% url 'polls:vote' 300 %}" method="post">
 {% csrf_token %}
-  <button name="subject" type="submit" value="5">No limit</button>
+  <button name="subject" type="submit" value="5">5 hours</button>
 </form>
+<form action="{% url 'polls:vote' 360 %}" method="post">
+{% csrf_token %}
+  <button name="subject" type="submit" value="6">6 hours</button>
+</form>
+<form action="{% url 'polls:vote' 420 %}" method="post">
+{% csrf_token %}
+  <button name="subject" type="submit" value="7">7 hours</button>
+</form>
+<form action="{% url 'polls:vote' 10000000 %}" method="post">
+{% csrf_token %}
+  <button name="subject" type="submit" value="10000000">No limit</button>
+</form>
+
+<pre>{{ logtext|linebreaks }}</pre>
+
