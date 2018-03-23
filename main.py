@@ -143,6 +143,7 @@ class ChargeControl(object):
                     self._nextState = self._currentState #prevent statechange
                 else:
                     self._powerCountDown = POWER_LIMIT_DEFAULT
+                    self._statePowerOn()
             elif (chargeStates.powerOnPeriodConnected == self._nextState or chargeStates.powerOnPeriodWaitForConnection == self._nextState):
                 self._statePowerOn()
             elif (chargeStates.powerOffPeriodWaitForConnection == self._nextState):
