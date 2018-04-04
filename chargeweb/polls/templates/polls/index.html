@@ -13,7 +13,7 @@ Cable: {{ status.connected}} {{ status.charging }}<br />
 
 Choose maximum chargetime:
 
-<form action="{% url 'polls:vote' 0 %}" method="post">
+<form action="{% url 'polls:vote' 1 %}" method="post">
 {% csrf_token %}
   <button name="subject" type="submit" value="0">stop charge</button>
 </form>
