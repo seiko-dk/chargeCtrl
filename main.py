@@ -104,13 +104,15 @@ class ChargeControl(object):
                     self._nextState = chargeStates.powerOnPeriodConnected
                 else:
                     self._nextState = chargeStates.powerOnPeriodWaitForConnection
+                    self._powerCountDown = POWER_LIMIT_DEFAULT
             elif (POWER_OFF_START <= now.hour and POWER_OFF_END > now.hour):
                 # We are now in the poweroff period
                 if (self._charger.connected):
                     self._nextState = chargeStates.powerOffPeriodConnected
                 else:
                     self._nextState = chargeStates.powerOffPeriodWaitForConnection
-        
+                    self._powerCountDown = POWER_LIMIT_DEFAULT
+
             #Perform file IO
             with open(POWER_LIMIT_FILENAME, 'r') as f:
                 pwrlimit = int(f.read())
