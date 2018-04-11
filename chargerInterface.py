@@ -2,9 +2,10 @@ from EasyModbus import ModbusClient
 from time import sleep
 import logging
 from logging.config import fileConfig
+from datetime import datetime
 import time
 import math
-import co2fetch
+from co2fetch import CO2Fetcher
 
 DEBUG_IF_FILENAME = 'debugif.txt'
 
@@ -163,10 +164,10 @@ class ChargerIf(object):
                 
                 fetch = CO2Fetcher()
                 now = datetime.now()
-                c02avgr = fetch.getCO2Avgr(min, now)
+                co2avgr = fetch.getCO2Avgr(min, now)
 				
-                self._logger.info('Charge time % 2u:%02u %f kWh %u gCO2/kWh', hour, rem, kWh, c02avgr)
-                self._summary.info('% 2u:%02u, %f, %u', hour, rem, kWh, c02avgr)
+                self._logger.info('Charge time % 2u:%02u %f kWh %s gCO2/kWh', hour, rem, kWh, co2avgr)
+                self._summary.info('% 2u:%02u, %f, %s', hour, rem, kWh, co2avgr)
                   
         
     def updateIO(self):
