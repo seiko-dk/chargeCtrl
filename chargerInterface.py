@@ -4,6 +4,9 @@ import logging
 from logging.config import fileConfig
 import time
 import math
+import co2fetch
+
+DEBUG_IF_FILENAME = 'debugif.txt'
 
 class ChargerIf(object):
 
@@ -26,7 +29,7 @@ class ChargerIf(object):
         self._chargeEnabled = False;
         
         self._simulate = False;
-        try:
+        if (uart != 'simulate'):
             self._modbusClient = ModbusClient.ModbusClient(uart)
             self._modbusClient.UnitIdentifier = 16  # Set slave ID
             self._modbusClient.Parity = ModbusClient.Parity.none
@@ -34,11 +37,11 @@ class ChargerIf(object):
             self._modbusClient.ser.setDTR(False)  # Enable autogating (half-duplex)
             self.chargeEnabled = True
             self.chargeModeCfg()
-        except:
-            self._logger.warning('Unable to connect to charger. Simulating communication')
+        else:
+            self._logger.warning('Simulating communication')
             self._simulate = True;
-            
-
+            self._simulateInput = [0x0, 0x08, 0x08, 0x08, 0x08, 0x08, 0x04, 0x0]    #This is reversed. End is read first
+            self._simulateIndex = self._simulateInput  
 
         self._chargeStartTimeStamp = time.time()
 
@@ -157,8 +160,13 @@ class ChargerIf(object):
                 hour = math.floor(min / 60)
                 rem = math.floor(min % 60)
                 kWh = (min * 3.7) / 60
-                self._logger.info('Charge time % 2u:%02u %f kWh', hour, rem, kWh)
-                self._summary.info('% 2u:%02u, %f', hour, rem, kWh)
+                
+                fetch = CO2Fetcher()
+                now = datetime.now()
+                c02avgr = fetch.getCO2Avgr(min, now)
+				
+                self._logger.info('Charge time % 2u:%02u %f kWh %u gCO2/kWh', hour, rem, kWh, c02avgr)
+                self._summary.info('% 2u:%02u, %f, %u', hour, rem, kWh, c02avgr)
                   
         
     def updateIO(self):
