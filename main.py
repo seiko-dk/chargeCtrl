@@ -10,6 +10,7 @@ import sys
 import json
 
 UART = '/dev/ttyUSB0'
+#UART = 'simulate'
 fileConfig('logging_config.ini')
 logger = logging.getLogger()
 
@@ -23,10 +24,8 @@ Every minute the file is read. Power can be limited to 0-8 hours. Default behavi
 btn on
 always power on
 
-At chargestop, write a csv logline containing start, stop, time, kwh
-
 Add comments.
-Use JSON format for web interface
+Add CO2 data to status
 """
 POWER_OFF_START = 16
 POWER_OFF_END   = 20
