@@ -9,7 +9,6 @@ class CO2Fetcher(object):
         self._http = urllib3.PoolManager()
         self._url = 'http://api.energidataservice.dk/datastore_search?resource_id=b5a8e0bc-44af-49d7-bb57-8f968f96932d&limit=5&filters={%22PriceArea%22:%20%22DK2%22}&q='
 
-        
     def _calcLookuptime(self, timestamp):
         timestamp = timestamp - timedelta(0,0,0,0,timestamp.minute % 5)
         timestamp = timestamp - timedelta(0,0,0,0,10)
@@ -28,7 +27,7 @@ class CO2Fetcher(object):
         d=d['records']
         d=d[0]
         d=d['CO2Emission']
-        print(d)
+        #print(d)
         return d
 
     def getCO2Avgr(self, minutes, timestamp):
@@ -47,10 +46,8 @@ class CO2Fetcher(object):
             co2avg = co2/loopCount
         except:
             co2avg = ' '
-        print(co2avg)
+        #print(co2avg)
         return co2avg
-            
-        
 
 """
 #test code
