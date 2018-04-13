@@ -7,7 +7,7 @@ class CO2Fetcher(object):
 
     def __init__(self):
         self._http = urllib3.PoolManager()
-        self._url = 'http://api.energidataservice.dk/datastore_search?resource_id=b5a8e0bc-44af-49d7-bb57-8f968f96932d&limit=5&filters={%22PriceArea%22:%20%22DK2%22}&q='
+        self._url = 'http://api.energidataservice.dk/datastore_search?resource_id=b5a8e0bc-44af-49d7-bb57-8f968f96932d&limit=5&filters='
 
     def _calcLookuptime(self, timestamp):
         timestamp = timestamp - timedelta(0,0,0,0,timestamp.minute % 5)
@@ -19,7 +19,10 @@ class CO2Fetcher(object):
         return timestring
 
     def _GetCO2Data(self, timestring):
-        completeUrl = self._url + timestring
+        filter= '{"PriceArea":"DK2","Minutes5DK":"' + timestring +'"}'
+        #print(filter)
+        completeUrl = self._url + filter
+        #print (completeUrl)
         r = self._http.request('GET', completeUrl)
         #print (r.data)
         d=json.loads(r.data.decode('utf-8'))

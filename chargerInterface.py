@@ -2,10 +2,6 @@ from EasyModbus import ModbusClient
 from time import sleep
 import logging
 from logging.config import fileConfig
-from datetime import datetime
-import time
-import math
-from co2fetch import CO2Fetcher
 
 DEBUG_IF_FILENAME = 'debugif.txt'
 
@@ -14,7 +10,6 @@ class ChargerIf(object):
     def __init__(self, uart, log):
         self._logger = log
         self._logger.info('Initializing charger')
-        self._summary = logging.getLogger('summary')
         self._btnEnabled = False
         self._xr = False        #external Release
         self._ml = False
@@ -43,8 +38,6 @@ class ChargerIf(object):
             self._simulate = True;
             self._simulateInput = [0, 12, 12, 12, 12, 12, 8, 0]
             self._simulateIndex = len (self._simulateInput)
-
-        self._chargeStartTimeStamp = time.time()
 
 #    def __del__(self):
 #        self._modbusClient.close()
@@ -151,26 +144,6 @@ class ChargerIf(object):
         if (self._oldIO!=IO):
             self._logger.info('IO update: ' + dbg_string)
 
-            o = self._oldIO[1] & 0x04
-            n = IO[1] & 0x04
-            if (n and not o):
-                #Charge is started
-                self._chargeStartTimeStamp = time.time()
-            elif (o and not n):
-                #charge is stopped. Calculate the charge time and energy transferred
-                diff = time.time() - self._chargeStartTimeStamp
-                min = int(round(diff/60))
-                hour = math.floor(min / 60)
-                rem = math.floor(min % 60)
-                kWh = (min * 3.7) / 60
-                
-                fetch = CO2Fetcher()
-                now = datetime.now()
-                co2avgr = fetch.getCO2Avgr(min, now)
-				
-                self._logger.info('Charge time % 2u:%02u %f kWh %s gCO2/kWh', hour, rem, kWh, co2avgr)
-                self._summary.info('% 2u:%02u, %f, %s', hour, rem, kWh, co2avgr)
-        
     def updateIO(self):
         if (self._simulate):
             res = [0]

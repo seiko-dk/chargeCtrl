@@ -8,9 +8,11 @@ from datetime import datetime
 import signal
 import sys
 import json
+import math
+from co2fetch import CO2Fetcher
 
-#UART = '/dev/ttyUSB0'
-UART = 'simulate'
+UART = '/dev/ttyUSB0'
+#UART = 'simulate'
 
 fileConfig('logging_config.ini')
 logger = logging.getLogger()
@@ -50,6 +52,8 @@ class ChargeControl(object):
 
     def __init__(self, log):
         self._logger = log
+        self._summary = logging.getLogger('summary')
+
         self._currentState = chargeStates.init
         self._nextState = chargeStates.init
         self._charger = ChargerIf(UART, log)
@@ -60,6 +64,8 @@ class ChargeControl(object):
         
         self._powerCountDown = POWER_LIMIT_DEFAULT
         
+        self._chargeStartTimeStamp = time.time()
+
     def _statePowerOnForced(self):
          self._charger.chargeEnabled = True
          self._powerCountDown = POWER_LIMIT_DEFAULT
@@ -89,7 +95,9 @@ class ChargeControl(object):
             diffSec = 60 - now.second
 #            diffSec = 1
             sleep(diffSec)
+        wasCharging = self._charger.charging
         self._charger.updateIO()
+        isCharging = self._charger.charging
         now = datetime.now()
         self._lastRunMin = now.minute
 
@@ -153,6 +161,26 @@ class ChargeControl(object):
             elif (chargeStates.powerOffPeriodConnected == self._nextState):
                 self._powerOffPeriodConnected()
 
+        #Write consumption data
+        if (isCharging and not wasCharging):
+            #Charge is started
+            self._chargeStartTimeStamp = time.time()
+        elif (wasCharging and not isCharging):
+            #charge is stopped. Calculate the charge time and energy transferred
+            diff = time.time() - self._chargeStartTimeStamp
+            min = int(round(diff/60))
+            hour = math.floor(min / 60)
+            rem = math.floor(min % 60)
+            kWh = (min * 3.7) / 60
+
+            fetch = CO2Fetcher()
+            now = datetime.now()
+            co2avgr = fetch.getCO2Avgr(min, now)
+
+            logger.info('Charge time % 2u:%02u %f kWh %s gCO2/kWh', hour, rem, kWh, co2avgr)
+            self._summary.info('% 2u:%02u, %f, %s', hour, rem, kWh, co2avgr)
+
+
         if(self._nextState != self._currentState):
             self._logger.info('%s -> %s', self._currentState, self._nextState)
             self._currentState = self._nextState
@@ -195,7 +223,7 @@ signal.signal(signal.SIGTERM, gracefull_shutdown)
 
 #try:
 #run forever, but while debugging it can be nice to limit loop
-i = 10    #20 hours
+i = 20    #20 hours
 while (i > 0):
     schedule.run()
     i = i - 1
