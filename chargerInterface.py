@@ -41,8 +41,8 @@ class ChargerIf(object):
         else:
             self._logger.warning('Simulating communication')
             self._simulate = True;
-            self._simulateInput = [0x0, 0x08, 0x08, 0x08, 0x08, 0x08, 0x04, 0x0]    #This is reversed. End is read first
-            self._simulateIndex = self._simulateInput  
+            self._simulateInput = [0, 12, 12, 12, 12, 12, 8, 0]
+            self._simulateIndex = len (self._simulateInput)
 
         self._chargeStartTimeStamp = time.time()
 
@@ -71,7 +71,9 @@ class ChargerIf(object):
                 self._logger.info('Charge is disabled')
 
         if (update):
-            if (not self._simulate):
+            if (self._simulate):
+                print("Charge enabled: ", self._chargeEnabled)
+            else:
                 self._modbusClient.WriteSingleCoil(20000, self._chargeEnabled)
             self._logger.debug('ChargeEnable[20.000] set: %s', self._chargeEnabled)
 
@@ -170,10 +172,15 @@ class ChargerIf(object):
                 self._summary.info('% 2u:%02u, %f, %s', hour, rem, kWh, co2avgr)
         
     def updateIO(self):
-        if (not self._simulate):
-            res = self._modbusClient.ReadHoldingRegisters(24004, 2)
+        if (self._simulate):
+            res = [0]
+            res.append(self._simulateInput[-self._simulateIndex])
+            if (0 == self._simulateIndex):
+                self._simulateIndex = len(self._simulateInput)
+            else:
+                self._simulateIndex = self._simulateIndex -1
         else:
-            res = [0, 12]
+            res = self._modbusClient.ReadHoldingRegisters(24004, 2)
         self._logger.debug('IO[24.004,24.005]: %s', res)
         self._parseIO(res)
         self._oldIO = res
