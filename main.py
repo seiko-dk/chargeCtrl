@@ -9,8 +9,9 @@ import signal
 import sys
 import json
 
-UART = '/dev/ttyUSB0'
-#UART = 'simulate'
+#UART = '/dev/ttyUSB0'
+UART = 'simulate'
+
 fileConfig('logging_config.ini')
 logger = logging.getLogger()
 
@@ -197,7 +198,7 @@ signal.signal(signal.SIGTERM, gracefull_shutdown)
 i = 10    #20 hours
 while (i > 0):
     schedule.run()
-#    i = i - 1
+    i = i - 1
 
 gracefull_shutdown(0, 0)
 #except:

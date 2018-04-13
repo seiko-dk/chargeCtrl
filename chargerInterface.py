@@ -168,7 +168,6 @@ class ChargerIf(object):
 				
                 self._logger.info('Charge time % 2u:%02u %f kWh %s gCO2/kWh', hour, rem, kWh, co2avgr)
                 self._summary.info('% 2u:%02u, %f, %s', hour, rem, kWh, co2avgr)
-                  
         
     def updateIO(self):
         if (not self._simulate):
