@@ -38,7 +38,7 @@ def index(request):
         if (data['chargeEnabled']):
             data['chargeEnabled'] = "ALLOWED"
         else:
-            data['chargeEnabled'] = "NO ALLOWED"
+            data['chargeEnabled'] = "NOT ALLOWED"
 
         if (data['button']):
             data['button'] = "ACTIVATED"
