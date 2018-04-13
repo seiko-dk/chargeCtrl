@@ -41,7 +41,7 @@ class CO2Fetcher(object):
                 minutes = minutes - 15
                 timestamp = timestamp - timedelta(0, 0, 0, 0, 15)
                 loopCount = loopCount +1 
-                print(timestr)
+                #print(timestr)
                 #print(co2)
             co2avg = co2/loopCount
         except:
