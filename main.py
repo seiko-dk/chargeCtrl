@@ -73,13 +73,17 @@ class ChargeControl(object):
     def _statePowerOn(self):
          self._charger.chargeEnabled = True
 
+    def _statePowerOff(self):
+         self._charger.chargeEnabled = False
+
     def _statePowerOffWaitForConnection(self):
          self._charger.chargeEnabled = True
 
     def _powerOffPeriodConnected(self):
         #ensure power is on, then wait one minute, then disconnect power
          self._charger.chargeEnabled = True
-         sleep(60)
+         self._chargeStartTimeStamp = time.time()
+         sleep(30)
          self._charger.updateIO()
          if (not self._charger.buttonEnabled):  
              self._charger.chargeEnabled = False
@@ -159,7 +163,10 @@ class ChargeControl(object):
             elif (chargeStates.powerOffPeriodWaitForConnection == self._nextState):
                 self._statePowerOffWaitForConnection()
             elif (chargeStates.powerOffPeriodConnected == self._nextState):
-                self._powerOffPeriodConnected()
+                if (chargeStates.powerOnPeriodConnected == self._currentState):
+                    self._statePowerOff()
+                else:
+                    self._powerOffPeriodConnected()
 
         #Write consumption data
         if (isCharging and not wasCharging):
