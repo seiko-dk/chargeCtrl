@@ -8,7 +8,7 @@ class CO2Fetcher(object):
     def __init__(self):
         self._http = urllib3.PoolManager()
         self._url = 'http://api.energidataservice.dk/datastore_search?resource_id=b5a8e0bc-44af-49d7-bb57-8f968f96932d&limit=5&filters='
-
+        self._future_url = 'http://api.energidataservice.dk/datastore_search?resource_id=d856694b-5e0e-463b-acc4-d9d7d895128a&limit=5&filters='
     def _calcLookuptime(self, timestamp):
         timestamp = timestamp - timedelta(0,0,0,0,timestamp.minute % 5)
         timestamp = timestamp - timedelta(0,0,0,0,10)
@@ -33,6 +33,40 @@ class CO2Fetcher(object):
         #print(d)
         return d
 
+    def _GetCO2FutureData(self, timestring):
+        filter= '{"PriceArea":"DK2","Minutes5DK":"' + timestring +'"}'
+        #print(filter)
+        completeUrl = self._future_url + filter
+        #print (completeUrl)
+        r = self._http.request('GET', completeUrl)
+        #print (r.data)
+        d=json.loads(r.data.decode('utf-8'))
+        d=d['result']
+        d=d['records']
+        d=d[0]
+        key=d['_id']
+        d=d['CO2Emission']
+        #print(d)
+        return d
+
+    def getCO2Prognosis(self, minutes, timestamp):
+        loopCount = 0;
+        co2 = [];
+        try:
+            timestamp = self._calcLookuptime(timestamp)
+            while (0<minutes):
+                timestr = self._formatLookuptime(timestamp)
+                co2.append(self._GetCO2FutureData(timestr))
+                minutes = minutes - 60
+                timestamp = timestamp + timedelta(0, 0, 0, 0, 60)
+                loopCount = loopCount +1
+                #print(timestr)
+                #print(co2)
+        except:
+            co2 = [];
+        #print(co2avg)
+        return co2
+
     def getCO2Avgr(self, minutes, timestamp):
         loopCount = 0;
         co2 = 0;
@@ -51,10 +85,9 @@ class CO2Fetcher(object):
             co2avg = ' '
         #print(co2avg)
         return co2avg
-
 """
 #test code
 fetch = CO2Fetcher()
 now = datetime.now()
-fetch.getCO2Avgr(60, now)
+fetch.getCO2Prognosis(120, now)
 """
