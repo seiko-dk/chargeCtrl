@@ -31,7 +31,7 @@ Add comments.
 Add CO2 data to status
 """
 POWER_OFF_START = 16
-POWER_OFF_END   = 21
+POWER_OFF_END   = 22
 POWER_LIMIT_FILENAME = 'pwr.txt'
 POWER_LIMIT_DEFAULT = 1000000000
 
