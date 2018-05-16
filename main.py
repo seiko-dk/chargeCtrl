@@ -126,9 +126,17 @@ class ChargeControl(object):
                     self._powerCountDown = POWER_LIMIT_DEFAULT
 
             #Perform file IO
-            with open(POWER_LIMIT_FILENAME, 'r') as f:
-                pwrlimit = int(f.read())
-            f.closed
+            try:
+                with open(POWER_LIMIT_FILENAME, 'r') as f:
+                    pwrlimit = int(f.read())
+                    f.closed
+            except:
+                pwrlimit = 0
+                with open(POWER_LIMIT_FILENAME, 'w') as f:
+                    f.write('0')
+                f.closed
+                
+                
             
             if (0<pwrlimit):
                 with open(POWER_LIMIT_FILENAME, 'w') as f:
