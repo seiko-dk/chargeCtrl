@@ -72,7 +72,7 @@ class CO2Fetcher(object):
         co2 = 0;
         try:
             timestamp = self._calcLookuptime(timestamp)
-            while (0<minutes):
+            while (0<=minutes):
                 timestr = self._formatLookuptime(timestamp)
                 co2 = co2 + self._GetCO2Data(timestr)
                 minutes = minutes - 15
