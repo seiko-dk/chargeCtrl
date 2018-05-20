@@ -9,6 +9,6 @@ OUT_FILE = '/home/tajs/sw/chargeCtrl/co2future.txt'
 fetch = CO2Fetcher()
 now = datetime.now()
 co2 = fetch.getCO2Prognosis(720, now)
-print(co2)
+#print(co2)
 with open(OUT_FILE, 'w') as outfile:  
     json.dump(co2, outfile)
