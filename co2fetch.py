@@ -56,12 +56,13 @@ class CO2Fetcher(object):
             timestamp = self._calcLookuptime(timestamp)
             while (0<minutes):
                 timestr = self._formatLookuptime(timestamp)
-                co2.append(self._GetCO2FutureData(timestr))
+                value = self._GetCO2FutureData(timestr)
+                entry = [timestamp.hour, value]
+                co2.append(entry)
                 minutes = minutes - 60
                 timestamp = timestamp + timedelta(0, 0, 0, 0, 60)
                 loopCount = loopCount +1
-                #print(timestr)
-                #print(co2)
+                #print(entry)
         except:
             co2 = [];
         #print(co2avg)
@@ -80,7 +81,7 @@ class CO2Fetcher(object):
                 loopCount = loopCount +1 
                 #print(timestr)
                 #print(co2)
-            co2avg = co2/loopCount
+            co2avg = round(co2/loopCount)
         except:
             co2avg = ' '
         #print(co2avg)

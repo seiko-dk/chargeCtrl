@@ -192,8 +192,8 @@ class ChargeControl(object):
             now = datetime.now()
             co2avgr = fetch.getCO2Avgr(min, now)
 
-            logger.info('Charge time % 2u:%02u %f kWh %s gCO2/kWh', hour, rem, kWh, co2avgr)
-            self._summary.info('% 2u:%02u, %f, %s', hour, rem, kWh, co2avgr)
+            logger.info('Charge time % 2u:%02u %.02f kWh %s gCO2/kWh', hour, rem, kWh, co2avgr)
+            self._summary.info('% 2u:%02u, %.02f, %s', hour, rem, kWh, co2avgr)
 
 
         if(self._nextState != self._currentState):

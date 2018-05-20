@@ -11,6 +11,7 @@ from django.template import loader
 POWER_LIMIT_FILENAME = '../pwr.txt'
 LOG_FILENAME = '../progress.log'
 STATUS_FILENAME = '../status.txt'
+CO2PROGNOSIS_FILENAME = '../co2future.txt'
 
 def index(request):
     logtext = subprocess.run(['grep', '-v', 'DEBUG', LOG_FILENAME], stdout=subprocess.PIPE).stdout.decode('utf-8')
@@ -49,8 +50,15 @@ def index(request):
             data['limitRemaining'] = "-"
 
 #    print(data)
+    with open(CO2PROGNOSIS_FILENAME) as json_file:
+        co2 = json.load(json_file)
+        #print(co2)
+        co2string = "";
+        for d in co2:
+            co2string = co2string +" " + str(d[0]).rjust(3) + ": " + str(d[1]).rjust(3) +"\r\n"
+        print(co2string)
 
-    return render(request, 'polls/index.html', {'logtext': logtext, 'status': data})
+    return render(request, 'polls/index.html', {'logtext': logtext, 'status': data, 'co2string': co2string})
 
 def detail(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
