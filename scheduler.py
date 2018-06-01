@@ -149,7 +149,7 @@ class ChargeControl(object):
                     f.write('0')
                 f.closed
                 self._powerCountDown = pwrlimit
-                logger.info('Limited charge to %u minutes', self._powerCountDown)
+                self._logger.info('Limited charge to %u minutes', self._powerCountDown)
                 
                 
             if (0 < self._powerCountDown and POWER_LIMIT_DEFAULT != self._powerCountDown):
@@ -159,7 +159,7 @@ class ChargeControl(object):
             if (0 == self._powerCountDown):
                 self._nextState = chargeStates.chargeComplete
                 self._powerCountDown = POWER_LIMIT_DEFAULT
-                logger.info('Charge time limit reached. Stopping charge')
+                self._logger.info('Charge time limit reached. Stopping charge')
 
         #Act on the new states
         if(self._nextState != self._currentState):
@@ -214,7 +214,7 @@ class ChargeControl(object):
                      'limitRemaining': self._powerCountDown,
                      }
 
-#        print(stateinfo)
+        #print(stateinfo)
 
         try:
             with open(STATUS_FILENAME, 'w') as f:
