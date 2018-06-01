@@ -12,8 +12,8 @@ from scheduler import ChargeControl
 from datetime import timedelta
 
 
-UART = '/dev/ttyUSB0'
-#UART = 'simulate'
+#UART = '/dev/ttyUSB0'
+UART = 'simulate'
 
 fileConfig('logging_config.ini')
 logger = logging.getLogger()
@@ -33,7 +33,7 @@ Add CO2 data to status
 """
 
 config = {
-    'power_off': [16, 17, 18, 19, 20, 21, 22, 22, 23],
+    'power_off': [16, 17, 18, 19, 20, 21, 22, 23],
     'charged_hour': 6,
     }
 
@@ -57,12 +57,18 @@ def gracefull_shutdown(sig, frame):
 signal.signal(signal.SIGINT, gracefull_shutdown)
 signal.signal(signal.SIGTERM, gracefull_shutdown)
 
-try:
+#try:
 #run forever, but while debugging it can be nice to limit loop
-    while (1):
-        schedule.run(config)
+i = 6    #20 hours
+schedule._powerCountDown = 75;
+while (i > 0):
+    schedule._step(now, secCount, config)
+    now = now + timedelta(0,0,0,0,1)
+    print(now.hour)
+    secCount = secCount + 60
+    i = i - 1
 
-    gracefull_shutdown(0, 0)
-except:
+gracefull_shutdown(0, 0)
+#except:
     #ensure that charging is enabled if something goes wrong
-    gracefull_shutdown(0, 0)
+#    gracefull_shutdown(0, 0)
