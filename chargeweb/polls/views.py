@@ -62,7 +62,7 @@ def index(request):
         co2string = "";
         for d in co2:
             co2string = co2string +" " + str(d[0]).rjust(3) + ": " + str(d[1]).rjust(3) +"\r\n"
-        print(co2string)
+        #print(co2string)
 
     return render(request, 'polls/index.html', {'logtext': logtext, 'status': data, 'co2string': co2string})
 

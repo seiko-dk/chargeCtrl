@@ -2,7 +2,7 @@
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-<h4>
+<h5>
 Last update: {{ status.time }}<br />
 Button: {{ status.button}}<br />
 State: {{ status.currentState}}<br />
@@ -10,7 +10,7 @@ ChargeStart: {{ status.chargeStart}}<br />
 PowerLimitCountdown: {{ status.limitRemaining}} min<br />
 Charging: {{ status.chargeEnabled}}<br />
 Cable: {{ status.connected}} {{ status.charging }}<br />
-</h4>
+</h5>
 
 Choose maximum chargetime:
 
