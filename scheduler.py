@@ -108,9 +108,9 @@ class ChargeControl(object):
             endHour = config['charged_hour'] -hourCount
             for i in range(endHour):
                 off_hours.append(i)
-            off_hours.sort()
         
 #        print(off_hours)
+        self._logger.debug("Off hours %s", str(off_hours))
         
         #Detect button state
         if (self._charger.buttonEnabled):
