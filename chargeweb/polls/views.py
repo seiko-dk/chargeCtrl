@@ -46,6 +46,12 @@ def index(request):
         else:
             data['button'] = "NOT ACTIVATED"
 
+        if (data['powerOffend']):
+            start = (data['powerOffend'] + 1) % 24
+            data['chargeStart'] = str(start) + ":00"
+        else:
+            data['chargeStart'] = "unknown"
+
         if (1000000<data['limitRemaining']):
             data['limitRemaining'] = "-"
 

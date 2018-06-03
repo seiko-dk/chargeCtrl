@@ -38,6 +38,7 @@ config = {
     }
 
 now = datetime.now()
+now = datetime(2018,5,1, 23, 59,0)
 secCount = time.time()
 
 schedule = ChargeControl(logger, now, secCount, UART)
@@ -59,12 +60,14 @@ signal.signal(signal.SIGTERM, gracefull_shutdown)
 
 #try:
 #run forever, but while debugging it can be nice to limit loop
-i = 6    #20 hours
-schedule._powerCountDown = 75;
+i = 8    #20 hours
+schedule._powerCountDown = 5;
 while (i > 0):
+    print(now.hour, ":", now.minute)
+    print("seccount ", secCount)
+    
     schedule._step(now, secCount, config)
     now = now + timedelta(0,0,0,0,1)
-    print(now.hour)
     secCount = secCount + 60
     i = i - 1
 

@@ -37,6 +37,8 @@ class ChargerIf(object):
             self._logger.warning('Simulating communication')
             self._simulate = True;
             self._simulateInput = [0, 12, 12, 12, 12, 12, 8, 0]
+            self._simulateInput = [12]
+            self._simulateInput = [8, 8, 12, 12, 12, 12, 12, 8, 8]
             self._simulateIndex = len (self._simulateInput)
 
 #    def __del__(self):
