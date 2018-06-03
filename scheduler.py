@@ -95,6 +95,7 @@ class ChargeControl(object):
 
     def _step(self, now, secCount, config):
         self._now = now
+        self._secCount = secCount
         wasCharging = self._charger.charging
         self._charger.updateIO()
         isCharging = self._charger.charging
@@ -212,6 +213,7 @@ class ChargeControl(object):
                      'charging': self._charger.charging, 
                      'chargeEnabled': self._charger.chargeEnabled,
                      'limitRemaining': self._powerCountDown,
+                     'powerOffend': off_hours[-1]
                      }
 
         #print(stateinfo)
