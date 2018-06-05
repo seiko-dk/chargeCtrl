@@ -149,11 +149,15 @@ class ChargerIf(object):
     def updateIO(self):
         if (self._simulate):
             res = [0]
-            res.append(self._simulateInput[-self._simulateIndex])
+            if (True == self._chargeEnabled):
+                res.append(12)
+            else:
+                res.append(8)
+            """            res.append(self._simulateInput[-self._simulateIndex])
             if (0 == self._simulateIndex):
                 self._simulateIndex = len(self._simulateInput)
             else:
-                self._simulateIndex = self._simulateIndex -1
+                self._simulateIndex = self._simulateIndex -1"""
         else:
             res = self._modbusClient.ReadHoldingRegisters(24004, 2)
         self._logger.debug('IO[24.004,24.005]: %s', res)

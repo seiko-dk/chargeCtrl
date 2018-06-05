@@ -103,13 +103,15 @@ class ChargeControl(object):
         
         off_hours = config['power_off'].copy()
         
-        if (0 < self._powerCountDown and POWER_LIMIT_DEFAULT != self._powerCountDown):
-            hourCount = (self._powerCountDown // 60) + 1
-            endHour = config['charged_hour'] -hourCount
-            for i in range(endHour):
-                off_hours.append(i)
+        if (chargeStates.powerOffPeriodConnected == self._nextState):
+            if (0 < self._powerCountDown and POWER_LIMIT_DEFAULT != self._powerCountDown):
+                hourCount = (self._powerCountDown // 60) + 1
+                endHour = config['charged_hour'] -hourCount
+                for i in range(endHour):
+                    off_hours.append(i)
         
 #        print(off_hours)
+#        print(self._powerCountDown)
         self._logger.debug("Off hours %s", str(off_hours))
         
         #Detect button state
