@@ -105,7 +105,10 @@ class ChargeControl(object):
         
         if (chargeStates.powerOffPeriodConnected == self._nextState):
             if (0 < self._powerCountDown and POWER_LIMIT_DEFAULT != self._powerCountDown):
-                hourCount = (self._powerCountDown // 60) + 1
+                chargeMinutes = self._powerCountDown
+                if(0 == self._powerCountDown % 60):
+                    chargeMinutes = chargeMinutes -1
+                hourCount = (chargeMinutes // 60) + 1
                 endHour = config['charged_hour'] -hourCount
                 for i in range(endHour):
                     off_hours.append(i)
