@@ -8,12 +8,31 @@ import signal
 import sys
 import json
 import math
+import os
 from scheduler import ChargeControl
 from datetime import timedelta
+from scheduler import STATUS_FILENAME
 
 
 UART = '/dev/ttyUSB0'
 #UART = 'simulate'
+
+"""Before we do anything, check that we are not already running
+"""
+
+
+fil = datetime.fromtimestamp(int(os.path.getmtime(STATUS_FILENAME)))
+#print(fil)
+current = datetime.fromtimestamp(int(time.time()))
+#print(current)
+diff = current - fil
+#print (diff)
+if (timedelta(seconds = 5*60) > diff):
+    print("We are running")
+    print (diff)
+    quit()
+#else:
+#    print("We are NOT running")
 
 fileConfig('logging_config.ini')
 logger = logging.getLogger()
@@ -29,7 +48,6 @@ btn on
 always power on
 
 Add comments.
-Add CO2 data to status
 """
 
 config = {
@@ -58,7 +76,6 @@ signal.signal(signal.SIGINT, gracefull_shutdown)
 signal.signal(signal.SIGTERM, gracefull_shutdown)
 
 try:
-#run forever, but while debugging it can be nice to limit loop
     while (1):
         schedule.run(config)
 
