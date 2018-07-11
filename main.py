@@ -80,6 +80,6 @@ try:
         schedule.run(config)
 
     gracefull_shutdown(0, 0)
-except:
+finally:
     #ensure that charging is enabled if something goes wrong
     gracefull_shutdown(0, 0)
