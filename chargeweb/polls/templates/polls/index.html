@@ -19,30 +19,30 @@ Choose maximum chargetime:
   <button name="subject" type="submit" value="0">stop charge</button>
 </form>
 
-<form action="{% url 'polls:vote' 15 %}" method="post">
+<form action="{% url 'polls:vote' 18 %}" method="post">
 {% csrf_token %}
-  <button name="subject" type="submit" value="5">15 min</button>
+  <button name="subject" type="submit" value="5">1 kWh</button>
 </form>
-<form action="{% url 'polls:vote' 30 %}" method="post">
+<form action="{% url 'polls:vote' 36 %}" method="post">
 {% csrf_token %}
-  <button name="subject" type="submit" value="6">30 min</button>
+  <button name="subject" type="submit" value="6">2 kWh</button>
 </form>
 
-<form action="{% url 'polls:vote' 60 %}" method="post">
+<form action="{% url 'polls:vote' 71 %}" method="post">
 {% csrf_token %}
-  <button name="subject" type="submit" value="1">1 hour</button>
+  <button name="subject" type="submit" value="1">4 kWh</button>
 </form>
-<form action="{% url 'polls:vote' 120 %}" method="post">
+<form action="{% url 'polls:vote' 143 %}" method="post">
 {% csrf_token %}
-  <button name="subject" type="submit" value="2">2 hours</button>
+  <button name="subject" type="submit" value="2">8 kWh</button>
 </form>
-<form action="{% url 'polls:vote' 180 %}" method="post">
+<form action="{% url 'polls:vote' 214 %}" method="post">
 {% csrf_token %}
-  <button name="subject" type="submit" value="3">3 hours</button>
+  <button name="subject" type="submit" value="3">12 kWh</button>
 </form>
-<form action="{% url 'polls:vote' 240 %}" method="post">
+<form action="{% url 'polls:vote' 216 %}" method="post">
 {% csrf_token %}
-  <button name="subject" type="submit" value="4">4 hours</button>
+  <button name="subject" type="submit" value="4">16 kWh</button>
 </form>
 
 <form action="{% url 'polls:vote' 10000000 %}" method="post">
